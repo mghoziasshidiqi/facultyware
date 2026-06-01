@@ -23,7 +23,6 @@
   <main class="main">
     <div class="p-6 max-w-2xl mx-auto space-y-6">
 
-      <!-- Breadcrumb -->
       <nav class="flex items-center gap-2 text-sm text-muted-foreground">
         <a href="/kerjasama/expired" class="hover:text-foreground">Kerjasama Expired</a>
         <span>/</span>
@@ -32,15 +31,13 @@
 
       <h1 class="text-2xl font-bold">Import Perpanjangan Kerjasama</h1>
 
-      <!-- Hasil import -->
-      <% if (typeof successCount !== 'undefined') { %>
+      <% if (typeof successCount !== 'undefined' && successCount !== null) { %>
         <div class="rounded-md bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-4 text-green-800 dark:text-green-200 text-sm">
           ✓ Berhasil mengimpor <strong><%= successCount %></strong> data perpanjangan.
         </div>
       <% } %>
 
-      <!-- Error messages -->
-      <% if (errors && errors.length > 0) { %>
+      <% if (typeof errors !== 'undefined' && errors && errors.length > 0) { %>
         <div class="rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4">
           <p class="font-medium text-red-800 dark:text-red-200 text-sm mb-2">
             Terdapat <%= errors.length %> kesalahan:
@@ -51,7 +48,6 @@
         </div>
       <% } %>
 
-      <!-- Form upload -->
       <div class="card p-6 space-y-4">
         <form method="POST" action="/kerjasama/expired/import" enctype="multipart/form-data" class="space-y-4" id="importForm">
           <div>
@@ -76,18 +72,17 @@
         </form>
       </div>
 
-      <!-- Panduan format file -->
       <div class="card p-6">
         <h2 class="font-semibold mb-3">Format File yang Diperlukan</h2>
         <p class="text-sm text-muted-foreground mb-3">
-          File harus memiliki kolom berikut (nama kolom bisa menggunakan nama teknis atau nama tampilan):
+          Sistem membaca baris pertama berkas berdasarkan <strong>Nama Kolom Teknis</strong> berikut (wajib ditulis sama persis di Excel):
         </p>
         <div class="overflow-x-auto">
           <table class="table w-full text-sm">
             <thead>
               <tr>
                 <th>Nama Kolom Teknis</th>
-                <th>Nama Kolom Tampilan</th>
+                <th>Nama Komponen</th>
                 <th>Keterangan</th>
                 <th>Wajib</th>
               </tr>
@@ -96,31 +91,31 @@
               <tr>
                 <td><code>partnership_id</code></td>
                 <td>ID Kerjasama</td>
-                <td>ID kerjasama di database</td>
+                <td>ID record mitra di database</td>
                 <td><span class="badge badge-destructive">Ya</span></td>
               </tr>
               <tr>
                 <td><code>new_document_number</code></td>
                 <td>Nomor Surat Baru</td>
-                <td>Nomor surat perpanjangan</td>
+                <td>Nomor dokumen perpanjangan</td>
                 <td><span class="badge badge-destructive">Ya</span></td>
               </tr>
               <tr>
                 <td><code>new_start_date</code></td>
                 <td>Tanggal Mulai Baru</td>
-                <td>Format: YYYY-MM-DD</td>
+                <td>Format penulisan: YYYY-MM-DD</td>
                 <td><span class="badge badge-destructive">Ya</span></td>
               </tr>
               <tr>
                 <td><code>new_end_date</code></td>
                 <td>Tanggal Akhir Baru</td>
-                <td>Format: YYYY-MM-DD</td>
+                <td>Format penulisan: YYYY-MM-DD</td>
                 <td><span class="badge badge-destructive">Ya</span></td>
               </tr>
               <tr>
                 <td><code>notes</code></td>
                 <td>Catatan</td>
-                <td>Catatan tambahan</td>
+                <td>Keterangan atau deskripsi tambahan</td>
                 <td><span class="badge">Tidak</span></td>
               </tr>
             </tbody>
@@ -128,9 +123,9 @@
         </div>
         <div class="mt-4 p-3 bg-muted rounded-md">
           <p class="text-xs font-mono text-muted-foreground">
-            Contoh baris CSV:<br/>
+            <strong>Contoh isi baris CSV / Excel:</strong><br/>
             partnership_id,new_document_number,new_start_date,new_end_date,notes<br/>
-            1,001/PKS/2026,2026-01-01,2028-12-31,Perpanjangan otomatis
+            1,005/PKS/FTI/2026,2026-06-02,2027-06-02,Perpanjangan massal sukses
           </p>
         </div>
       </div>
@@ -139,17 +134,21 @@
   </main>
 
   <script>
+    // Proteksi sisi klien sebelum dikirim ke Express server
     document.getElementById('importForm').addEventListener('submit', function(e) {
-      const file = document.getElementById('file').files[0];
+      const fileInput = document.getElementById('file');
+      const file = fileInput.files[0];
+      
       if (!file) {
         e.preventDefault();
-        alert('Pilih file terlebih dahulu');
+        alert('Silakan pilih file terlebih dahulu!');
         return;
       }
+      
       const ext = file.name.split('.').pop().toLowerCase();
       if (!['csv', 'xlsx', 'xls'].includes(ext)) {
         e.preventDefault();
-        alert('Format file tidak didukung. Gunakan .csv, .xlsx, atau .xls');
+        alert('Format berkas salah! Hanya mendukung ekstensi .csv, .xlsx, atau .xls');
       }
     });
   </script>
