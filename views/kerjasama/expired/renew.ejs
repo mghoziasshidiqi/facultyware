@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <script>
+    (() => {
+      try {
+        const stored = localStorage.getItem("themeMode");
+        if (stored ? stored === "dark" : matchMedia("(prefers-color-scheme: dark)").matches) {
+          document.documentElement.classList.add("dark");
+        }
+      } catch (_) {}
+    })();
+  </script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= title %> - Facultyware</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <%- include('../../partials/sidebar') %>
+
+  <main class="main">
+    <div class="p-6 max-w-2xl mx-auto space-y-6">
+
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-2 text-sm text-muted-foreground">
+        <a href="/kerjasama/expired" class="hover:text-foreground">Kerjasama Expired</a>
+        <span>/</span>
+        <span class="text-foreground">Perpanjangan</span>
+      </nav>
+
+      <!-- Info kerjasama -->
+      <div class="card p-4 bg-muted/40">
+        <h2 class="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2">Data Kerjasama</h2>
+        <p class="font-medium"><%= partnership.title %></p>
+        <p class="text-sm text-muted-foreground">Mitra: <strong><%= partnership.partner_name %></strong></p>
+        <p class="text-sm text-muted-foreground">No. Dokumen: <strong><%= partnership.document_number %></strong></p>
+        <p class="text-sm text-muted-foreground">
+          Berlaku: <strong><%= partnership.start_date ? new Date(partnership.start_date).toLocaleDateString('id-ID') : '-' %></strong>
+          s/d <strong><%= partnership.end_date ? new Date(partnership.end_date).toLocaleDateString('id-ID') : '-' %></strong>
+        </p>
+        <p class="text-sm mt-1">
+          Status:
+          <% if (partnership.status === 'expired') { %>
+            <span class="badge badge-destructive">Expired</span>
+          <% } else { %>
+            <span class="badge badge-success">Aktif</span>
+          <% } %>
+        </p>
+      </div>
+
+      <!-- Error messages -->
+      <% if (errors && errors.length > 0) { %>
+        <div class="rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4">
+          <p class="font-medium text-red-800 dark:text-red-200 text-sm mb-1">Terdapat kesalahan:</p>
+          <ul class="list-disc list-inside text-red-700 dark:text-red-300 text-sm space-y-1">
+            <% errors.forEach(e => { %><li><%= e %></li><% }) %>
+          </ul>
+        </div>
+      <% } %>
+
+      <!-- Form perpanjangan -->
+      <div class="card p-6">
+        <h1 class="text-xl font-bold mb-4">
+          <%= existingRenewal ? 'Edit Perpanjangan' : 'Input Perpanjangan Kerjasama' %>
+        </h1>
+
+        <% if (existingRenewal) { %>
+          <div class="rounded-md bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 p-3 mb-4 text-sm text-yellow-800 dark:text-yellow-200">
+            ⚠️ Sudah ada perpanjangan aktif dengan nomor <strong><%= existingRenewal.new_document_number %></strong>.
+            Menyimpan form ini akan menggantikan perpanjangan tersebut.
+          </div>
+        <% } %>
+
+        <form method="POST" action="/kerjasama/expired/<%= partnership.id %>/renew" class="space-y-4" id="renewForm">
+          <div>
+            <label for="new_document_number" class="label block mb-1">
+              Nomor Surat Baru <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="new_document_number"
+              name="new_document_number"
+              class="input w-full"
+              placeholder="Contoh: 001/PKS/2026"
+              value="<%= existingRenewal ? existingRenewal.new_document_number : '' %>"
+              required
+            />
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="new_start_date" class="label block mb-1">
+                Tanggal Mulai Baru <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                id="new_start_date"
+                name="new_start_date"
+                class="input w-full"
+                value="<%= existingRenewal && existingRenewal.new_start_date ? new Date(existingRenewal.new_start_date).toISOString().split('T')[0] : '' %>"
+                required
+              />
+            </div>
+            <div>
+              <label for="new_end_date" class="label block mb-1">
+                Tanggal Akhir Baru <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                id="new_end_date"
+                name="new_end_date"
+                class="input w-full"
+                value="<%= existingRenewal && existingRenewal.new_end_date ? new Date(existingRenewal.new_end_date).toISOString().split('T')[0] : '' %>"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label for="notes" class="label block mb-1">Catatan</label>
+            <textarea
+              id="notes"
+              name="notes"
+              class="input w-full min-h-[80px]"
+              placeholder="Catatan tambahan (opsional)"
+            ><%= existingRenewal ? (existingRenewal.notes || '') : '' %></textarea>
+          </div>
+
+          <div class="flex gap-3 pt-2">
+            <button type="submit" class="btn">
+              <%= existingRenewal ? 'Perbarui Perpanjangan' : 'Simpan Perpanjangan' %>
+            </button>
+            <a href="/kerjasama/expired" class="btn-outline">Batal</a>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    // Validasi client-side
+    document.getElementById('renewForm').addEventListener('submit', function(e) {
+      const startDate = document.getElementById('new_start_date').value;
+      const endDate = document.getElementById('new_end_date').value;
+      const docNum = document.getElementById('new_document_number').value.trim();
+
+      if (!docNum) {
+        e.preventDefault();
+        alert('Nomor surat baru wajib diisi');
+        return;
+      }
+      if (startDate && endDate && startDate >= endDate) {
+        e.preventDefault();
+        alert('Tanggal akhir harus setelah tanggal mulai');
+      }
+    });
+  </script>
+</body>
+</html>

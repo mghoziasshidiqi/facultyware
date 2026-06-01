@@ -1,0 +1,48 @@
+<aside id="sidebar" class="sidebar" data-side="left" aria-hidden="false">
+  <nav aria-label="Sidebar navigation">
+    <header>
+      <a href="/home" class="btn-ghost p-2 h-12 w-full justify-start">
+        <div class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" class="h-4 w-4">
+            <rect width="256" height="256" fill="none"></rect>
+            <line x1="208" y1="128" x2="128" y2="208" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"></line>
+            <line x1="192" y1="40" x2="40" y2="192" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"></line>
+          </svg>
+        </div>
+        <div class="grid flex-1 text-left text-sm leading-tight">
+          <span class="truncate font-medium">Facultyware</span>
+          <span class="truncate text-xs">Pengelolaan Kerjasama</span>
+        </div>
+      </a>
+    </header>
+
+    <section class="scrollbar">
+      <div role="group" aria-labelledby="group-kerjasama">
+        <h3 id="group-kerjasama">Kerjasama</h3>
+        <ul>
+          <li>
+            <a href="/kerjasama/expired">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>Expired & Perpanjangan</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <footer>
+      <div class="p-2">
+        <div class="flex items-center gap-2 px-2 py-1.5 text-sm">
+          <div class="size-8 rounded-full bg-muted flex items-center justify-center font-medium">
+            <%= typeof user !== 'undefined' ? user.charAt(0).toUpperCase() : 'U' %>
+          </div>
+          <span class="truncate"><%= typeof user !== 'undefined' ? user : 'User' %></span>
+        </div>
+        <a href="/logout" class="btn-ghost w-full justify-start text-sm mt-1">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Logout
+        </a>
+      </div>
+    </footer>
+  </nav>
+</aside>

@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <script>
+    (() => {
+      try {
+        const stored = localStorage.getItem("themeMode");
+        if (stored ? stored === "dark" : matchMedia("(prefers-color-scheme: dark)").matches) {
+          document.documentElement.classList.add("dark");
+        }
+      } catch (_) {}
+      document.addEventListener("basecoat:theme", (e) => {
+        const m = e.detail?.mode;
+        document.documentElement.classList.toggle("dark", m === "dark" ? true : m === "light" ? false : !document.documentElement.classList.contains("dark"));
+        try { localStorage.setItem("themeMode", document.documentElement.classList.contains("dark") ? "dark" : "light"); } catch (_) {}
+      });
+    })();
+  </script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= title %> - Facultyware</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+  <link rel="stylesheet" href="/assets/styles.css" />
+  <script src="https://unpkg.com/htmx.org@2.0.4" defer></script>
+</head>
+<body>
+  <%- include('../../partials/sidebar') %>
+
+  <main class="main">
+    <div class="p-6 space-y-6">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold">Kerjasama Expired & Akan Expired</h1>
+          <p class="text-muted-foreground text-sm mt-1">Pantau kerjasama yang sudah atau akan berakhir dalam 90 hari ke depan</p>
+        </div>
+        <div class="flex gap-2">
+          <a href="/kerjasama/expired/import" class="btn-outline btn-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Import
+          </a>
+          <a href="/kerjasama/expired/export/pdf?search=<%= encodeURIComponent(search) %>&year_from=<%= yearFrom %>&year_to=<%= yearTo %>" class="btn btn-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Export PDF
+          </a>
+        </div>
+      </div>
+
+      <!-- Flash messages -->
+      <% if (typeof query !== 'undefined' && query && query.success) { %>
+        <div class="alert alert-success"><%= query.success %></div>
+      <% } %>
+      <% const qs = new URLSearchParams ? null : null; %>
+      <% if (typeof locals.query !== 'undefined') { %>
+        <% if (locals.query && locals.query.success) { %>
+          <div class="rounded-md bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-4 text-green-800 dark:text-green-200 text-sm"><%= locals.query.success %></div>
+        <% } %>
+        <% if (locals.query && locals.query.error) { %>
+          <div class="rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 text-red-800 dark:text-red-200 text-sm"><%= locals.query.error %></div>
+        <% } %>
+      <% } %>
+
+      <!-- Statistik Dashboard -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="card p-4">
+          <p class="text-muted-foreground text-xs uppercase tracking-wide">Total Kerjasama</p>
+          <p class="text-3xl font-bold mt-1"><%= stats.total || 0 %></p>
+        </div>
+        <div class="card p-4">
+          <p class="text-muted-foreground text-xs uppercase tracking-wide">Aktif</p>
+          <p class="text-3xl font-bold mt-1 text-green-600"><%= stats.active || 0 %></p>
+        </div>
+        <div class="card p-4">
+          <p class="text-muted-foreground text-xs uppercase tracking-wide">Akan Expired (&le;90 hari)</p>
+          <p class="text-3xl font-bold mt-1 text-yellow-600"><%= stats.soon_expired || 0 %></p>
+        </div>
+        <div class="card p-4">
+          <p class="text-muted-foreground text-xs uppercase tracking-wide">Expired</p>
+          <p class="text-3xl font-bold mt-1 text-red-600"><%= stats.expired || 0 %></p>
+        </div>
+      </div>
+
+      <!-- Filter & Search -->
+      <div class="card p-4">
+        <form method="GET" action="/kerjasama/expired" class="flex flex-wrap gap-3 items-end">
+          <div class="flex-1 min-w-[200px]">
+            <label class="label text-sm mb-1 block">Cari</label>
+            <input type="text" name="search" value="<%= search %>" placeholder="Judul, mitra, nomor dokumen..." class="input w-full" />
+          </div>
+          <div>
+            <label class="label text-sm mb-1 block">Tahun Dari</label>
+            <input type="number" name="year_from" value="<%= yearFrom %>" placeholder="2020" min="2000" max="2099" class="input w-28" />
+          </div>
+          <div>
+            <label class="label text-sm mb-1 block">Tahun Sampai</label>
+            <input type="number" name="year_to" value="<%= yearTo %>" placeholder="2030" min="2000" max="2099" class="input w-28" />
+          </div>
+          <button type="submit" class="btn btn-sm">Cari</button>
+          <a href="/kerjasama/expired" class="btn-outline btn-sm">Reset</a>
+        </form>
+      </div>
+
+      <!-- Tabel -->
+      <div class="card">
+        <div class="p-4 border-b">
+          <p class="text-sm text-muted-foreground">Menampilkan <strong><%= partnerships.length %></strong> dari <strong><%= total %></strong> data</p>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="table w-full">
+            <thead>
+              <tr>
+                <th>Judul Kerjasama</th>
+                <th>Mitra</th>
+                <th>No. Dokumen</th>
+                <th>Tgl Mulai</th>
+                <th>Tgl Akhir</th>
+                <th>Sisa Hari</th>
+                <th>Status</th>
+                <th>Perpanjangan</th>
+                <th class="text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (partnerships.length === 0) { %>
+                <tr>
+                  <td colspan="9" class="text-center text-muted-foreground py-8">Tidak ada data kerjasama expired</td>
+                </tr>
+              <% } %>
+              <% partnerships.forEach(p => { %>
+                <tr>
+                  <td class="font-medium max-w-[200px]">
+                    <span class="truncate block" title="<%= p.title %>"><%= p.title %></span>
+                  </td>
+                  <td><%= p.partner_name %></td>
+                  <td class="text-sm text-muted-foreground"><%= p.document_number %></td>
+                  <td class="text-sm"><%= p.start_date ? new Date(p.start_date).toLocaleDateString('id-ID') : '-' %></td>
+                  <td class="text-sm"><%= p.end_date ? new Date(p.end_date).toLocaleDateString('id-ID') : '-' %></td>
+                  <td>
+                    <% const days = p.days_remaining; %>
+                    <% if (days < 0) { %>
+                      <span class="badge badge-destructive"><%= Math.abs(days) %> hari lalu</span>
+                    <% } else if (days <= 30) { %>
+                      <span class="badge badge-destructive"><%= days %> hari</span>
+                    <% } else { %>
+                      <span class="badge badge-warning"><%= days %> hari</span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <% if (p.status === 'expired') { %>
+                      <span class="badge badge-destructive">Expired</span>
+                    <% } else if (p.status === 'active') { %>
+                      <span class="badge badge-success">Aktif</span>
+                    <% } else { %>
+                      <span class="badge"><%= p.status %></span>
+                    <% } %>
+                  </td>
+                  <td class="text-sm">
+                    <% if (p.renewal_id) { %>
+                      <span class="text-green-600 font-medium">✓ <%= p.new_document_number %></span>
+                    <% } else { %>
+                      <span class="text-muted-foreground">-</span>
+                    <% } %>
+                  </td>
+                  <td class="text-right">
+                    <div class="flex gap-1 justify-end">
+                      <a href="/kerjasama/expired/<%= p.id %>/renew" class="btn-outline btn-sm">
+                        <% if (p.renewal_id) { %>Edit Perpanjangan<% } else { %>Perpanjang<% } %>
+                      </a>
+                      <% if (p.renewal_id) { %>
+                        <form method="POST" action="/kerjasama/expired/<%= p.id %>/renew/cancel" onsubmit="return confirm('Batalkan perpanjangan ini?')">
+                          <button type="submit" class="btn-destructive btn-sm">Batalkan</button>
+                        </form>
+                      <% } %>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <% if (totalPages > 1) { %>
+          <div class="p-4 border-t flex items-center justify-between">
+            <p class="text-sm text-muted-foreground">Halaman <%= currentPage %> dari <%= totalPages %></p>
+            <div class="flex gap-1">
+              <% if (currentPage > 1) { %>
+                <a href="?page=<%= currentPage - 1 %>&search=<%= encodeURIComponent(search) %>&year_from=<%= yearFrom %>&year_to=<%= yearTo %>" class="btn-outline btn-sm">‹ Prev</a>
+              <% } %>
+              <% for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) { %>
+                <a href="?page=<%= i %>&search=<%= encodeURIComponent(search) %>&year_from=<%= yearFrom %>&year_to=<%= yearTo %>"
+                   class="btn-sm <%= i === currentPage ? 'btn' : 'btn-outline' %>"><%= i %></a>
+              <% } %>
+              <% if (currentPage < totalPages) { %>
+                <a href="?page=<%= currentPage + 1 %>&search=<%= encodeURIComponent(search) %>&year_from=<%= yearFrom %>&year_to=<%= yearTo %>" class="btn-outline btn-sm">Next ›</a>
+              <% } %>
+            </div>
+          </div>
+        <% } %>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    // Tampilkan flash message dari query string
+    const urlParams = new URLSearchParams(window.location.search);
+    const successMsg = urlParams.get('success');
+    const errorMsg = urlParams.get('error');
+    if (successMsg || errorMsg) {
+      const div = document.createElement('div');
+      div.className = successMsg
+        ? 'fixed top-4 right-4 z-50 rounded-md bg-green-50 border border-green-200 p-4 text-green-800 text-sm shadow-lg'
+        : 'fixed top-4 right-4 z-50 rounded-md bg-red-50 border border-red-200 p-4 text-red-800 text-sm shadow-lg';
+      div.textContent = decodeURIComponent(successMsg || errorMsg);
+      document.body.appendChild(div);
+      setTimeout(() => div.remove(), 4000);
+    }
+  </script>
+</body>
+</html>

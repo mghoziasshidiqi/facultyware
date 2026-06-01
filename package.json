@@ -17,6 +17,12 @@
     "express-session": "^1.19.0",
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
-    "mysql2": "^3.22.3"
+    "multer": "^2.1.1",
+    "mysql2": "^3.22.3",
+    "pdfkit": "^0.18.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }

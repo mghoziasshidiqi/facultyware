@@ -59,3 +59,7 @@ typings/
 
 # next.js build output
 .next
+
+# Upload files (keep folder structure but ignore contents)
+uploads/*
+!uploads/.gitkeep
