@@ -21,7 +21,14 @@
         <h3 id="group-kerjasama">Kerjasama</h3>
         <ul>
           <li>
-            <a href="/kerjasama/expired">
+            <a href="/kerjasama/master" class="<%= typeof title !== 'undefined' && (title === 'Data Master Kerjasama' || title === 'Tambah Kerjasama Baru' || title === 'Edit Kerjasama' || title === 'Import Master Kerjasama') ? 'active' : '' %>">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+              <span>Daftar Kerjasama</span>
+            </a>
+          </li>
+
+          <li>
+            <a href="/kerjasama/expired" class="<%= typeof title !== 'undefined' && (title === 'Kerjasama Expired' || title === 'Import Perpanjangan Kerjasama') ? 'active' : '' %>">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               <span>Expired & Perpanjangan</span>
             </a>

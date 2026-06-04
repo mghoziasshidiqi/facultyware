@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <script>
+    (() => { try { const stored = localStorage.getItem("themeMode"); if (stored ? stored === "dark" : matchMedia("(prefers-color-scheme: dark)").matches) { document.documentElement.classList.add("dark"); } } catch (_) {} })();
+  </script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= title %> - Facultyware</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <%- include('../../partials/sidebar') %>
+
+  <main class="main">
+    <div class="p-6 space-y-6">
+      
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 class="text-2xl font-bold">Data Master Kerjasama</h1>
+          <p class="text-sm text-muted-foreground mt-1">Kelola seluruh data kemitraan (CRUD)</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <a href="/kerjasama/master/import" class="btn-outline text-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Import
+          </a>
+          <a href="/kerjasama/master/export/pdf" target="_blank" class="btn-outline text-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export PDF
+          </a>
+          <a href="/kerjasama/master/create" class="btn text-sm">
+            + Tambah Data
+          </a>
+        </div>
+      </div>
+
+      <% if (typeof req !== 'undefined' && req.query.success) { %>
+        <div class="rounded-md bg-green-50 dark:bg-green-900/20 border border-green-200 p-4 text-green-800 dark:text-green-200 text-sm">
+          ✓ <%= req.query.success %>
+        </div>
+      <% } %>
+
+      <div class="card p-4">
+        <form method="GET" action="/kerjasama/master" class="flex gap-2 max-w-md">
+          <input type="text" name="search" value="<%= search %>" placeholder="Cari judul, mitra, atau no dokumen..." class="input w-full" />
+          <button type="submit" class="btn">Cari</button>
+        </form>
+      </div>
+
+      <div class="card overflow-x-auto">
+        <table class="table w-full text-sm text-left">
+          <thead class="bg-muted">
+            <tr>
+              <th class="p-4 font-semibold">Judul Kerjasama</th>
+              <th class="p-4 font-semibold">Mitra</th>
+              <th class="p-4 font-semibold">No. Dokumen</th>
+              <th class="p-4 font-semibold">Masa Berlaku</th>
+              <th class="p-4 font-semibold">Status</th>
+              <th class="p-4 font-semibold text-right">Aksi</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            <% if (partnerships.length === 0) { %>
+              <tr><td colspan="6" class="p-4 text-center text-muted-foreground">Tidak ada data ditemukan.</td></tr>
+            <% } else { %>
+              <% partnerships.forEach(p => { %>
+                <tr class="hover:bg-muted/50 transition-colors">
+                  <td class="p-4 font-medium"><%= p.title %></td>
+                  <td class="p-4 text-muted-foreground"><%= p.partner_name %></td>
+                  <td class="p-4">
+                    <%= p.document_number %><br>
+                    <span class="text-xs text-muted-foreground"><%= p.document_type %></span>
+                  </td>
+                  <td class="p-4 text-xs">
+                    Mulai: <%= new Date(p.start_date).toLocaleDateString('id-ID') %><br>
+                    Akhir: <%= new Date(p.end_date).toLocaleDateString('id-ID') %>
+                  </td>
+                  <td class="p-4">
+                    <% if (p.status === 'active') { %> <span class="badge bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Aktif</span>
+                    <% } else if (p.status === 'expired') { %> <span class="badge badge-destructive">Expired</span>
+                    <% } else { %> <span class="badge bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300">Terminated</span> <% } %>
+                  </td>
+                  <td class="p-4 text-right space-x-2">
+                    <a href="/kerjasama/master/update/<%= p.id %>" class="text-blue-500 hover:underline text-sm">Edit</a>
+                    <form action="/kerjasama/master/delete/<%= p.id %>" method="POST" class="inline" onsubmit="return confirm('Hapus data ini secara permanen?');">
+                      <button type="submit" class="text-red-500 hover:underline text-sm">Hapus</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+</body>
+</html>

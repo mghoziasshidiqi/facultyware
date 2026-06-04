@@ -19,7 +19,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dashboard - Facultyware</title>
-  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+  <link class="icon" type="image/svg+xml" href="/assets/favicon.svg" />
   <link rel="stylesheet" href="/assets/styles.css" />
 </head>
 <body>
@@ -28,15 +28,27 @@
   <main class="main">
     <div class="p-6 space-y-6">
 
-      <!-- Header -->
       <div>
         <h1 class="text-2xl font-bold">Selamat datang, <%= user %> 👋</h1>
         <p class="text-muted-foreground text-sm mt-1">Sistem Pengelolaan Kerjasama - Facultyware</p>
       </div>
 
-      <!-- Menu Navigasi -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 
+        <!-- Kartu 1: Daftar Kerjasama (Sekarang di Atas & Full Clickable) -->
+        <a href="/kerjasama/master" class="card p-6 hover:shadow-md transition-shadow group">
+          <div class="flex items-start gap-4">
+            <div class="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-briefcase"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            </div>
+            <div>
+              <h2 class="font-semibold group-hover:text-primary transition-colors text-lg">Daftar Kerjasama</h2>
+              <p class="text-sm text-muted-foreground mt-1">Kelola data kerjasama (CRUD)</p>
+            </div>
+          </div>
+        </a>
+
+        <!-- Kartu 2: Kerjasama Expired (Sekarang di Bawah) -->
         <a href="/kerjasama/expired" class="card p-6 hover:shadow-md transition-shadow group">
           <div class="flex items-start gap-4">
             <div class="p-3 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
@@ -46,7 +58,7 @@
               </svg>
             </div>
             <div>
-              <h2 class="font-semibold group-hover:text-primary transition-colors">Kerjasama Expired</h2>
+              <h2 class="font-semibold group-hover:text-primary transition-colors text-lg">Kerjasama Expired</h2>
               <p class="text-sm text-muted-foreground mt-1">Pantau kerjasama yang sudah atau akan berakhir, dan kelola perpanjangannya</p>
             </div>
           </div>
