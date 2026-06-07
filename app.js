@@ -10,6 +10,7 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var kerjasamaExpiredRouter = require('./routes/kerjasamaExpired');
 const kerjasamaMasterRouter = require('./routes/kerjasamaMaster');
+const kerjasamaIARouter = require('./routes/kerjasamaIA');
 const { notFoundHandler, errorHandler } = require('./middlewares/error');
 
 var app = express();
@@ -47,7 +48,8 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/kerjasama/expired', kerjasamaExpiredRouter);
 app.use('/kerjasama/master', kerjasamaMasterRouter);
-app.get('/kerjasama', (req, res) => res.redirect('/kerjasama/expired'));
+app.use('/kerjasama/ia', kerjasamaIARouter);
+app.get('/kerjasama', (req, res) => res.redirect('/kerjasama/master'));
 
 // catch 404 and forward to error handler
 app.use(notFoundHandler);

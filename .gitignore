@@ -63,3 +63,6 @@ typings/
 # Upload files (keep folder structure but ignore contents)
 uploads/*
 !uploads/.gitkeep
+
+# Database dump
+*.sql

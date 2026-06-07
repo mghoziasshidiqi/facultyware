@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <script>
+    (() => { try { const stored = localStorage.getItem("themeMode"); if (stored ? stored === "dark" : matchMedia("(prefers-color-scheme: dark)").matches) { document.documentElement.classList.add("dark"); } } catch (_) {} })();
+  </script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= title %> - Facultyware</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <%- include('../../partials/sidebar') %>
+
+  <main class="main">
+    <div class="p-6 max-w-2xl mx-auto space-y-6">
+
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-2 text-sm text-muted-foreground">
+        <a href="/kerjasama/ia" class="hover:text-foreground">Implementation Arrangement</a>
+        <span>/</span>
+        <span class="text-foreground"><%= ia ? 'Edit' : 'Tambah' %></span>
+      </nav>
+
+      <h1 class="text-2xl font-bold"><%= title %></h1>
+
+      <!-- Error messages -->
+      <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+        <div class="rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4">
+          <p class="font-medium text-red-800 dark:text-red-200 text-sm mb-2">Terdapat kesalahan:</p>
+          <ul class="list-disc list-inside text-red-700 dark:text-red-300 text-sm space-y-1">
+            <% errors.forEach(e => { %><li><%= e %></li><% }) %>
+          </ul>
+        </div>
+      <% } %>
+
+      <div class="card p-6">
+        <form method="POST"
+              action="<%= ia && ia.id ? '/kerjasama/ia/update/' + ia.id : '/kerjasama/ia/create' %>"
+              enctype="multipart/form-data"
+              class="space-y-4">
+
+          <!-- Kerjasama Induk -->
+          <div>
+            <label class="label block mb-1">Kerjasama Induk <span class="text-red-500">*</span></label>
+            <select name="partnership_id" class="input w-full" required>
+              <option value="">-- Pilih Kerjasama --</option>
+              <% partnerships.forEach(p => { %>
+                <option value="<%= p.id %>"
+                  <%= ia && String(ia.partnership_id) === String(p.id) ? 'selected' : '' %>>
+                  <%= p.title %> (<%= p.partner_name %>)
+                </option>
+              <% }) %>
+            </select>
+          </div>
+
+          <!-- Program Implementasi -->
+          <div>
+            <label class="label block mb-1">Program Implementasi <span class="text-red-500">*</span></label>
+            <select name="partnership_impl_id" class="input w-full" required>
+              <option value="">-- Pilih Program --</option>
+              <% implList.forEach(pi => { %>
+                <option value="<%= pi.id %>"
+                  <%= ia && String(ia.partnership_impl_id) === String(pi.id) ? 'selected' : '' %>>
+                  <%= pi.title %> — <%= pi.partnership_title %>
+                </option>
+              <% }) %>
+            </select>
+          </div>
+
+          <!-- Judul Kegiatan -->
+          <div>
+            <label class="label block mb-1">Judul Kegiatan IA <span class="text-red-500">*</span></label>
+            <input type="text" name="title" class="input w-full"
+              value="<%= ia ? ia.title : '' %>"
+              placeholder="Contoh: Workshop Pertukaran Dosen 2025"
+              required />
+          </div>
+
+          <!-- Deskripsi -->
+          <div>
+            <label class="label block mb-1">Deskripsi Kegiatan</label>
+            <textarea name="description" class="input w-full" rows="3"
+              placeholder="Tuliskan ringkasan kegiatan..."><%= ia ? ia.description || '' : '' %></textarea>
+          </div>
+
+          <!-- Nomor Dokumen -->
+          <div>
+            <label class="label block mb-1">Nomor Dokumen</label>
+            <input type="text" name="document_number" class="input w-full"
+              value="<%= ia ? ia.document_number || '' : '' %>"
+              placeholder="Contoh: IA-001/2025" />
+          </div>
+
+          <!-- Tanggal -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="label block mb-1">Tanggal Mulai <span class="text-red-500">*</span></label>
+              <input type="date" name="start_date" class="input w-full"
+                value="<%= ia && ia.start_date ? new Date(ia.start_date).toISOString().split('T')[0] : '' %>"
+                required />
+            </div>
+            <div>
+              <label class="label block mb-1">Tanggal Akhir</label>
+              <input type="date" name="end_date" class="input w-full"
+                value="<%= ia && ia.end_date ? new Date(ia.end_date).toISOString().split('T')[0] : '' %>" />
+            </div>
+          </div>
+
+          <!-- Upload Dokumen Lampiran -->
+          <div>
+            <label class="label block mb-1">
+              Dokumen Lampiran
+              <span class="text-xs text-muted-foreground font-normal">(PDF/DOC/DOCX, maks. 10MB)</span>
+            </label>
+            <% if (ia && ia.document_file) { %>
+              <div class="mb-2 p-2 bg-muted rounded text-sm flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <span>File saat ini: <strong><%= ia.document_file %></strong></span>
+                <a href="/kerjasama/ia/download/<%= ia.id %>" class="text-blue-500 hover:underline text-xs">Unduh</a>
+              </div>
+              <p class="text-xs text-muted-foreground mb-1">Upload file baru untuk mengganti (kosongkan jika tidak ingin mengganti)</p>
+            <% } %>
+            <input type="file" name="document_file" class="input w-full" accept=".pdf,.doc,.docx" />
+          </div>
+
+          <!-- Tombol -->
+          <div class="flex gap-3 pt-4 border-t">
+            <button type="submit" class="btn">Simpan Data</button>
+            <a href="/kerjasama/ia" class="btn-outline">Batal</a>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </main>
+</body>
+</html>

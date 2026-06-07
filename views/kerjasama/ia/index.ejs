@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <script>
+    (() => { try { const stored = localStorage.getItem("themeMode"); if (stored ? stored === "dark" : matchMedia("(prefers-color-scheme: dark)").matches) { document.documentElement.classList.add("dark"); } } catch (_) {} })();
+  </script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= title %> - Facultyware</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <%- include('../../partials/sidebar') %>
+
+  <main class="main">
+    <div class="p-6 space-y-6">
+
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 class="text-2xl font-bold">Implementation Arrangement (IA)</h1>
+          <p class="text-sm text-muted-foreground mt-1">Kelola kegiatan turunan dari kerjasama induk</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <a href="/kerjasama/ia/import" class="btn-outline text-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Import
+          </a>
+          <a href="/kerjasama/ia/export/pdf<%= search || partnerFilter ? '?search=' + encodeURIComponent(search) + '&partner_id=' + encodeURIComponent(partnerFilter) : '' %>" target="_blank" class="btn-outline text-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export PDF
+          </a>
+          <a href="/kerjasama/ia/create" class="btn text-sm">+ Tambah IA</a>
+        </div>
+      </div>
+
+      <!-- Notifikasi -->
+      <% if (typeof req !== 'undefined' && req.query && req.query.success) { %>
+        <div class="rounded-md bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-4 text-green-800 dark:text-green-200 text-sm">
+          ✓ <%= req.query.success %>
+        </div>
+      <% } %>
+      <% if (typeof req !== 'undefined' && req.query && req.query.error) { %>
+        <div class="rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 text-red-800 dark:text-red-200 text-sm">
+          ✗ <%= req.query.error %>
+        </div>
+      <% } %>
+
+      <!-- Filter & Search -->
+      <div class="card p-4">
+        <form method="GET" action="/kerjasama/ia" class="flex flex-wrap gap-2 items-end">
+          <div class="flex-1 min-w-48">
+            <label class="label block mb-1 text-xs">Cari Judul / No. Dokumen</label>
+            <input type="text" name="search" value="<%= search %>" placeholder="Cari kegiatan IA..." class="input w-full" />
+          </div>
+          <div class="min-w-48">
+            <label class="label block mb-1 text-xs">Filter Mitra</label>
+            <select name="partner_id" class="input w-full">
+              <option value="">-- Semua Mitra --</option>
+              <% partners.forEach(pt => { %>
+                <option value="<%= pt.id %>" <%= partnerFilter == pt.id ? 'selected' : '' %>><%= pt.name %></option>
+              <% }) %>
+            </select>
+          </div>
+          <button type="submit" class="btn">Filter</button>
+          <% if (search || partnerFilter) { %>
+            <a href="/kerjasama/ia" class="btn-outline">Reset</a>
+          <% } %>
+        </form>
+      </div>
+
+      <!-- Tabel -->
+      <div class="card overflow-x-auto">
+        <table class="table w-full text-sm text-left">
+          <thead class="bg-muted">
+            <tr>
+              <th class="p-4 font-semibold">Judul Kegiatan IA</th>
+              <th class="p-4 font-semibold">Kerjasama Induk</th>
+              <th class="p-4 font-semibold">Mitra</th>
+              <th class="p-4 font-semibold">No. Dokumen</th>
+              <th class="p-4 font-semibold">Masa Berlaku</th>
+              <th class="p-4 font-semibold">Lampiran</th>
+              <th class="p-4 font-semibold text-right">Aksi</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            <% if (iaList.length === 0) { %>
+              <tr><td colspan="7" class="p-8 text-center text-muted-foreground">Tidak ada data IA ditemukan.</td></tr>
+            <% } else { %>
+              <% iaList.forEach(ia => { %>
+                <tr class="hover:bg-muted/50 transition-colors">
+                  <td class="p-4 font-medium max-w-xs">
+                    <div class="truncate"><%= ia.title %></div>
+                    <% if (ia.description) { %>
+                      <div class="text-xs text-muted-foreground truncate mt-0.5"><%= ia.description %></div>
+                    <% } %>
+                  </td>
+                  <td class="p-4 text-muted-foreground text-xs"><%= ia.partnership_title %></td>
+                  <td class="p-4 text-xs"><%= ia.partner_name %></td>
+                  <td class="p-4 text-xs"><%= ia.document_number || '-' %></td>
+                  <td class="p-4 text-xs">
+                    <% if (ia.start_date) { %>
+                      Mulai: <%= new Date(ia.start_date).toLocaleDateString('id-ID') %><br>
+                    <% } %>
+                    <% if (ia.end_date) { %>
+                      Akhir: <%= new Date(ia.end_date).toLocaleDateString('id-ID') %>
+                    <% } else { %>
+                      <span class="text-muted-foreground">Tidak ada batas</span>
+                    <% } %>
+                  </td>
+                  <td class="p-4">
+                    <% if (ia.document_file) { %>
+                      <a href="/kerjasama/ia/download/<%= ia.id %>" class="text-blue-500 hover:underline text-xs flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Unduh
+                      </a>
+                    <% } else { %>
+                      <span class="text-muted-foreground text-xs">-</span>
+                    <% } %>
+                  </td>
+                  <td class="p-4 text-right">
+                    <div class="flex justify-end gap-2">
+                      <a href="/kerjasama/ia/api/<%= ia.id %>" target="_blank" class="text-purple-500 hover:underline text-xs">API</a>
+                      <a href="/kerjasama/ia/update/<%= ia.id %>" class="text-blue-500 hover:underline text-xs">Edit</a>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <% if (totalPages > 1) { %>
+        <div class="flex items-center justify-between text-sm text-muted-foreground">
+          <span>Menampilkan <%= (currentPage - 1) * 10 + 1 %>–<%= Math.min(currentPage * 10, total) %> dari <%= total %> data</span>
+          <div class="flex gap-1">
+            <% if (currentPage > 1) { %>
+              <a href="?page=<%= currentPage - 1 %>&search=<%= encodeURIComponent(search) %>&partner_id=<%= encodeURIComponent(partnerFilter) %>" class="btn-outline text-xs px-3 py-1">‹ Prev</a>
+            <% } %>
+            <% for (let p = Math.max(1, currentPage - 2); p <= Math.min(totalPages, currentPage + 2); p++) { %>
+              <a href="?page=<%= p %>&search=<%= encodeURIComponent(search) %>&partner_id=<%= encodeURIComponent(partnerFilter) %>"
+                 class="<%= p === currentPage ? 'btn' : 'btn-outline' %> text-xs px-3 py-1"><%= p %></a>
+            <% } %>
+            <% if (currentPage < totalPages) { %>
+              <a href="?page=<%= currentPage + 1 %>&search=<%= encodeURIComponent(search) %>&partner_id=<%= encodeURIComponent(partnerFilter) %>" class="btn-outline text-xs px-3 py-1">Next ›</a>
+            <% } %>
+          </div>
+        </div>
+      <% } %>
+
+    </div>
+  </main>
+</body>
+</html>
