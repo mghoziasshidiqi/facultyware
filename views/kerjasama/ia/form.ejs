@@ -9,6 +9,7 @@
   <title><%= title %> - Facultyware</title>
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
   <link rel="stylesheet" href="/assets/styles.css" />
+  <link rel="stylesheet" href="/stylesheets/style.css" />
 </head>
 <body>
   <%- include('../../partials/sidebar') %>
@@ -44,7 +45,7 @@
           <!-- Kerjasama Induk -->
           <div>
             <label class="label block mb-1">Kerjasama Induk <span class="text-red-500">*</span></label>
-            <select name="partnership_id" class="input w-full" required>
+            <select name="partnership_id" id="partnership_id" class="input w-full" required>
               <option value="">-- Pilih Kerjasama --</option>
               <% partnerships.forEach(p => { %>
                 <option value="<%= p.id %>"
@@ -58,16 +59,54 @@
           <!-- Program Implementasi -->
           <div>
             <label class="label block mb-1">Program Implementasi <span class="text-red-500">*</span></label>
-            <select name="partnership_impl_id" class="input w-full" required>
+            <select name="partnership_impl_id" id="partnership_impl_id" class="input w-full" required>
               <option value="">-- Pilih Program --</option>
               <% implList.forEach(pi => { %>
                 <option value="<%= pi.id %>"
+                  data-partnership="<%= pi.partnership_id %>"
                   <%= ia && String(ia.partnership_impl_id) === String(pi.id) ? 'selected' : '' %>>
-                  <%= pi.title %> — <%= pi.partnership_title %>
+                  <%= pi.title %>
                 </option>
               <% }) %>
             </select>
+            <p id="impl_hint" class="text-xs text-muted-foreground mt-1 hidden">Pilih kerjasama induk terlebih dahulu untuk melihat program yang tersedia.</p>
           </div>
+
+          <script>
+            (function () {
+              const partnershipSel = document.getElementById('partnership_id');
+              const implSel = document.getElementById('partnership_impl_id');
+              const implHint = document.getElementById('impl_hint');
+              const allOptions = Array.from(implSel.querySelectorAll('option[data-partnership]'));
+
+              function filterImpl() {
+                const selectedId = partnershipSel.value;
+                const currentVal = implSel.value;
+
+                allOptions.forEach(opt => {
+                  if (!selectedId || opt.dataset.partnership === selectedId) {
+                    opt.style.display = '';
+                    opt.disabled = false;
+                  } else {
+                    opt.style.display = 'none';
+                    opt.disabled = true;
+                  }
+                });
+
+                // Reset pilihan jika tidak sesuai kerjasama baru
+                if (currentVal && implSel.querySelector(`option[value="${currentVal}"]:not([disabled]`) === null) {
+                  implSel.value = '';
+                }
+
+                implHint.classList.toggle('hidden', !!selectedId);
+              }
+
+              partnershipSel.addEventListener('change', filterImpl);
+
+              // Jalankan saat halaman load (untuk mode edit)
+              filterImpl();
+            })();
+          </script>
 
           <!-- Judul Kegiatan -->
           <div>

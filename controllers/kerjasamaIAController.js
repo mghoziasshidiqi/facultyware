@@ -131,7 +131,7 @@ const createForm = async (req, res, next) => {
        ORDER BY p.title ASC`
     );
     const [implList] = await db.query(
-      `SELECT pi.id, pi.title, p.title AS partnership_title
+      `SELECT pi.id, pi.partnership_id, pi.title, p.title AS partnership_title
        FROM partnership_implementations pi
        JOIN partnerships p ON pi.partnership_id = p.id
        ORDER BY pi.title ASC`
@@ -170,7 +170,7 @@ const createStore = [
           `SELECT p.id, p.title, pt.name AS partner_name FROM partnerships p JOIN partners pt ON p.partner_id = pt.id WHERE p.status = 'active' ORDER BY p.title ASC`
         );
         const [implList] = await db.query(
-          `SELECT pi.id, pi.title, p.title AS partnership_title FROM partnership_implementations pi JOIN partnerships p ON pi.partnership_id = p.id ORDER BY pi.title ASC`
+          `SELECT pi.id, pi.partnership_id, pi.title, p.title AS partnership_title FROM partnership_implementations pi JOIN partnerships p ON pi.partnership_id = p.id ORDER BY pi.title ASC`
         );
         return res.render("kerjasama/ia/form", {
           title: "Tambah Implementation Arrangement",
@@ -228,7 +228,7 @@ const updateForm = async (req, res, next) => {
       `SELECT p.id, p.title, pt.name AS partner_name FROM partnerships p JOIN partners pt ON p.partner_id = pt.id WHERE p.status = 'active' ORDER BY p.title ASC`
     );
     const [implList] = await db.query(
-      `SELECT pi.id, pi.title, p.title AS partnership_title FROM partnership_implementations pi JOIN partnerships p ON pi.partnership_id = p.id ORDER BY pi.title ASC`
+      `SELECT pi.id, pi.partnership_id, pi.title, p.title AS partnership_title FROM partnership_implementations pi JOIN partnerships p ON pi.partnership_id = p.id ORDER BY pi.title ASC`
     );
 
     res.render("kerjasama/ia/form", {
@@ -266,7 +266,7 @@ const updateStore = [
           `SELECT p.id, p.title, pt.name AS partner_name FROM partnerships p JOIN partners pt ON p.partner_id = pt.id WHERE p.status = 'active' ORDER BY p.title ASC`
         );
         const [implList] = await db.query(
-          `SELECT pi.id, pi.title, p.title AS partnership_title FROM partnership_implementations pi JOIN partnerships p ON pi.partnership_id = p.id ORDER BY pi.title ASC`
+          `SELECT pi.id, pi.partnership_id, pi.title, p.title AS partnership_title FROM partnership_implementations pi JOIN partnerships p ON pi.partnership_id = p.id ORDER BY pi.title ASC`
         );
         return res.render("kerjasama/ia/form", {
           title: "Edit Implementation Arrangement",
