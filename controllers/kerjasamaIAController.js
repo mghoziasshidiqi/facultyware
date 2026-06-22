@@ -511,6 +511,29 @@ const importProcess = [
   },
 ];
 
+// ─── Hapus IA ────────────────────────────────────────────────────────────────
+const deleteIA = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Ambil info dokumen sebelum dihapus
+    const [[ia]] = await db.query(`SELECT document_file FROM implementation_arrangements WHERE id = ?`, [id]);
+
+    if (!ia) return res.redirect("/kerjasama/ia?error=Data+IA+tidak+ditemukan");
+
+    // Hapus file lampiran dari server jika ada
+    if (ia.document_file) {
+      const filePath = path.join(docUploadDir, ia.document_file);
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    }
+
+    await db.query(`DELETE FROM implementation_arrangements WHERE id = ?`, [id]);
+    res.redirect("/kerjasama/ia?success=Data+IA+berhasil+dihapus");
+  } catch (err) {
+    next(err);
+  }
+};
+
 // ─── API: Detail IA dalam JSON ────────────────────────────────────────────────
 const apiDetail = async (req, res, next) => {
   try {
@@ -585,6 +608,7 @@ module.exports = {
   createStore,
   updateForm,
   updateStore,
+  deleteIA,
   downloadDoc,
   exportPdf,
   importPage,

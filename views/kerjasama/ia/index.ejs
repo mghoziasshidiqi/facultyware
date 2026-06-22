@@ -50,8 +50,8 @@
 
       <!-- Filter & Search -->
       <div class="card p-4">
-        <form method="GET" action="/kerjasama/ia" class="flex flex-wrap gap-2 items-end">
-          <div class="flex-1 min-w-48">
+        <form method="GET" action="/kerjasama/ia" class="flex flex-wrap gap-3 items-end">
+          <div class="flex-1 min-w-56">
             <label class="label block mb-1 text-xs">Cari Judul / No. Dokumen</label>
             <input type="text" name="search" value="<%= search %>" placeholder="Cari kegiatan IA..." class="input w-full" />
           </div>
@@ -64,10 +64,12 @@
               <% }) %>
             </select>
           </div>
-          <button type="submit" class="btn">Filter</button>
-          <% if (search || partnerFilter) { %>
-            <a href="/kerjasama/ia" class="btn-outline">Reset</a>
-          <% } %>
+          <div class="flex gap-2">
+            <button type="submit" class="btn">Filter</button>
+            <% if (search || partnerFilter) { %>
+              <a href="/kerjasama/ia" class="btn-outline">Reset</a>
+            <% } %>
+          </div>
         </form>
       </div>
 
@@ -97,15 +99,17 @@
                       <div class="text-xs text-muted-foreground truncate mt-0.5"><%= ia.description %></div>
                     <% } %>
                   </td>
-                  <td class="p-4 text-muted-foreground text-xs"><%= ia.partnership_title %></td>
+                  <td class="p-4 text-muted-foreground text-xs max-w-[160px]">
+                    <div class="truncate"><%= ia.partnership_title %></div>
+                  </td>
                   <td class="p-4 text-xs"><%= ia.partner_name %></td>
-                  <td class="p-4 text-xs"><%= ia.document_number || '-' %></td>
-                  <td class="p-4 text-xs">
+                  <td class="p-4 text-xs font-mono"><%= ia.document_number || '-' %></td>
+                  <td class="p-4 text-xs whitespace-nowrap">
                     <% if (ia.start_date) { %>
-                      Mulai: <%= new Date(ia.start_date).toLocaleDateString('id-ID') %><br>
+                      <div>Mulai: <%= new Date(ia.start_date).toLocaleDateString('id-ID') %></div>
                     <% } %>
                     <% if (ia.end_date) { %>
-                      Akhir: <%= new Date(ia.end_date).toLocaleDateString('id-ID') %>
+                      <div>Akhir: <%= new Date(ia.end_date).toLocaleDateString('id-ID') %></div>
                     <% } else { %>
                       <span class="text-muted-foreground">Tidak ada batas</span>
                     <% } %>
@@ -121,9 +125,12 @@
                     <% } %>
                   </td>
                   <td class="p-4 text-right">
-                    <div class="flex justify-end gap-2">
-                      <a href="/kerjasama/ia/api/<%= ia.id %>" target="_blank" class="text-blue-500 hover:underline text-xs">API</a>
-                      <a href="/kerjasama/ia/update/<%= ia.id %>" class="text-blue-500 hover:underline text-xs">Edit</a>
+                    <div class="flex justify-end items-center gap-3">
+                      <a href="/kerjasama/ia/api/<%= ia.id %>" target="_blank" class="text-muted-foreground hover:text-foreground text-xs" title="Lihat data JSON">API</a>
+                      <a href="/kerjasama/ia/update/<%= ia.id %>" class="text-blue-500 hover:underline text-xs font-medium">Edit</a>
+                      <form action="/kerjasama/ia/delete/<%= ia.id %>" method="POST" class="inline" onsubmit="return confirm('Hapus data IA ini secara permanen?\nFile lampiran juga akan ikut terhapus.');">
+                        <button type="submit" class="text-red-500 hover:underline text-xs font-medium">Hapus</button>
+                      </form>
                     </div>
                   </td>
                 </tr>
@@ -133,10 +140,10 @@
         </table>
       </div>
 
-      <!-- Pagination -->
-      <% if (totalPages > 1) { %>
-        <div class="flex items-center justify-between text-sm text-muted-foreground">
-          <span>Menampilkan <%= (currentPage - 1) * 10 + 1 %>–<%= Math.min(currentPage * 10, total) %> dari <%= total %> data</span>
+      <!-- Info total & Pagination -->
+      <div class="flex items-center justify-between text-sm text-muted-foreground">
+        <span>Total: <strong class="text-foreground"><%= total %></strong> data IA</span>
+        <% if (totalPages > 1) { %>
           <div class="flex gap-1">
             <% if (currentPage > 1) { %>
               <a href="?page=<%= currentPage - 1 %>&search=<%= encodeURIComponent(search) %>&partner_id=<%= encodeURIComponent(partnerFilter) %>" class="btn-outline text-xs px-3 py-1">‹ Prev</a>
@@ -149,8 +156,8 @@
               <a href="?page=<%= currentPage + 1 %>&search=<%= encodeURIComponent(search) %>&partner_id=<%= encodeURIComponent(partnerFilter) %>" class="btn-outline text-xs px-3 py-1">Next ›</a>
             <% } %>
           </div>
-        </div>
-      <% } %>
+        <% } %>
+      </div>
 
     </div>
   </main>
