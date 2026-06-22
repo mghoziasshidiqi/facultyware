@@ -3,6 +3,87 @@ body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
-a {
+/* Hanya warna link polos (tanpa class) di area konten utama */
+main a:not([class]) {
   color: #00B7FF;
+}
+
+/* ─── Fix: select dropdown ────────────────────────────────────────────────── */
+select.input {
+  background-color: #ffffff;
+  color: #0a0a0a;
+}
+
+select.input option {
+  background-color: #ffffff;
+  color: #0a0a0a;
+}
+
+.dark select.input {
+  background-color: #1e1e1e;
+  color: #f5f5f5;
+}
+
+.dark select.input option {
+  background-color: #1e1e1e;
+  color: #f5f5f5;
+}
+
+.dark select.input option:hover,
+.dark select.input option:focus,
+.dark select.input option:checked {
+  background-color: #2563eb;
+  color: #f5f5f5;
+}
+
+/* ─── Fix: tombol .btn di dark mode ──────────────────────────────────────────
+   Di dark mode basecoat, --primary adalah abu terang & --primary-foreground
+   gelap → tombol terlihat abu-abu kusam. Override keduanya ke biru gelap
+   agar selaras dengan warna aksen sidebar (biru).
+─────────────────────────────────────────────────────────────────────────── */
+.dark .btn,
+.dark .btn-primary,
+.dark .btn-sm,
+.dark .btn-sm-primary,
+.dark .btn-lg,
+.dark .btn-lg-primary,
+.dark .btn-icon,
+.dark .btn-icon-primary {
+  background-color: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
+.dark .btn:hover,
+.dark .btn-primary:hover,
+.dark .btn-sm:hover,
+.dark .btn-lg:hover,
+.dark .btn-icon:hover {
+  background-color: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+/* ─── Seragamkan warna link aksi di tabel ────────────────────────────────── */
+.text-purple-500 {
+  color: #3b82f6 !important;
+}
+
+/* ─── Animasi hover semua tombol ─────────────────────────────────────────── */
+[class*="btn"] {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease !important;
+}
+
+[class*="btn"]:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+[class*="btn"]:active:not(:disabled) {
+  transform: translateY(0px);
+  box-shadow: none;
+}
+
+[class*="btn"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
