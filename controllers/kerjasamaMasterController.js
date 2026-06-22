@@ -155,8 +155,16 @@ const updateStore = async (req, res, next) => {
 const deleteData = async (req, res, next) => {
   try {
     const { id } = req.params;
+
+    // Hapus semua tabel child yang punya FK ke partnerships (urutan penting)
+    await db.query(`DELETE FROM implementation_arrangements WHERE partnership_id = ?`, [id]);
+    await db.query(`DELETE FROM partnership_implementations WHERE partnership_id = ?`, [id]);
+    await db.query(`DELETE FROM partnership_documents WHERE partnership_id = ?`, [id]);
+    await db.query(`DELETE FROM partnership_renewals WHERE partnership_id = ?`, [id]);
+
+    // Hapus kerjasama induknya
     await db.query(`DELETE FROM partnerships WHERE id = ?`, [id]);
-    res.redirect("/kerjasama/master?success=Data+berhasil+dihapus");
+    res.redirect("/kerjasama/master?success=Data+kerjasama+dan+semua+data+terkait+berhasil+dihapus");
   } catch (err) {
     next(err);
   }
